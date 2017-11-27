@@ -3,6 +3,8 @@
 Friend Class ProfessionalMediaStream
     Private Const RTP_PAYLOAD As Integer = 1428
     Private Const MAX_IP As Integer = 1500
+    Private lastTicks As ULong = 0
+    Public deltas As New List(Of Double)
 
     Public Property activeHeight As Integer
     Public Property activeWidth As Integer
@@ -10,6 +12,7 @@ Friend Class ProfessionalMediaStream
     Public Property interlaced As Boolean
     Public Property rate As Decimal
     Public Property sampleWidth As Integer
+
     ' Ratio of active time to total time within the frame period
     Public Property rActive As Decimal = 1.0
     Public Property senderType As String = "2110TPW"
@@ -76,11 +79,11 @@ Friend Class ProfessionalMediaStream
         Return ret
     End Function
 
-    Friend Function CMaxSpec() As Integer
+    Public Function CMaxSpec() As Integer
         Return Math.Max(CMaxSpecLeft(), Math.Floor(CMaxSpecRight()))
     End Function
 
-    Friend Function VrxFullSpecLeft() As Double
+    Public Function VrxFullSpecLeft() As Double
         Dim ret As Decimal = 0
         If senderType Like "2110TPN*" Then
             ret = (1500 * 8) / MAX_IP
@@ -90,7 +93,7 @@ Friend Class ProfessionalMediaStream
         Return ret
     End Function
 
-    Friend Function VrxFullSpecRight() As Double
+    Public Function VrxFullSpecRight() As Double
         Dim ret As Decimal = 0
         If senderType Like "2110TPN*" Then
             ret = NPackets() / (27000 * TFrame())
@@ -100,7 +103,15 @@ Friend Class ProfessionalMediaStream
         Return ret
     End Function
 
-    Friend Function VrxFullSpec() As Integer
+    Public Function VrxFullSpec() As Integer
         Return Math.Max(Math.Floor(VrxFullSpecLeft()), Math.Floor(VrxFullSpecRight()))
     End Function
+
+    Public Sub packetEvent(ticks As Long)
+        If lastTicks > 0 Then
+            ' deltas converted from ticks (0.1 us) to micro-seconds
+            deltas.Add((ticks - lastTicks) / 10)
+        End If
+        lastTicks = ticks
+    End Sub
 End Class

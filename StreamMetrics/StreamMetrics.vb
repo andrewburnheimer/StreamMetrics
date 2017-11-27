@@ -3,8 +3,7 @@ Imports PcapDotNet.Core
 Imports System.Text
 
 Module StreamMetrics
-    Dim lastTicks As ULong = 0
-    Dim deltas As New List(Of Double)
+    Dim strm As ProfessionalMediaStream = New ProfessionalMediaStream()
 
     ' returns the number of characters copied to the buffer, not including the terminating null character.
     ' If supplied destination buffer is too small to hold the requested string, the string is truncated.
@@ -28,44 +27,6 @@ Module StreamMetrics
                 Throw New MissingArgumentException("Please run on console with a filename argument, or drag and drop an input file on icon or shortcut.")
             End If
 
-            Dim PacketDevice As OfflinePacketDevice = New OfflinePacketDevice(Filename)
-            Dim PacketCommunicator As PacketCommunicator = PacketDevice.Open()
-
-            Using PacketCommunicator
-                PacketCommunicator.ReceivePackets(0, AddressOf DispatchPacket)
-            End Using
-
-            Console.Out().WriteLine("Read " & deltas.Count + 1 & " packets")
-            Console.Out().WriteLine()
-            Console.Out().WriteLine("= Summary Statistics =")
-            Dim meanSdev As Tuple(Of Double, Double) = Statistics.MeanStandardDeviation(deltas)
-
-            Console.Out().WriteLine("Min interval over file (in us)=" & Format(Statistics.Minimum(deltas), "Fixed"))
-            Console.Out().WriteLine("1st percentile (find outliers, in us)=" & Format(Statistics.Percentile(deltas, 1), "Fixed"))
-            Console.Out().WriteLine("5th percentile (set standard, in us)=" & Format(Statistics.Percentile(deltas, 5), "Fixed"))
-            Console.Out().WriteLine("Median (50th percentile, in us)=" & Format(Statistics.Median(deltas), "Fixed"))
-            Console.Out().WriteLine("Average packet interval (in us)=" & Format(meanSdev.Item1, "Fixed"))
-            Console.Out().WriteLine("Packet interval standard dev. (in us)=" & Format(meanSdev.Item2, "Fixed"))
-            Console.Out().WriteLine("95th percentile (set standard, in us)=" & Format(Statistics.Percentile(deltas, 95), "Fixed"))
-            Console.Out().WriteLine("99th percentile (find outliers, in us)=" & Format(Statistics.Percentile(deltas, 99), "Fixed"))
-            Console.Out().WriteLine("Max interval over file (in us)=" & Format(Statistics.Maximum(deltas), "Fixed"))
-            Console.Out().WriteLine()
-
-            Console.Out().WriteLine("= Packet Interval Numerical Histogram =")
-            Dim histogram As Histogram = New Histogram(deltas, 10)
-
-            Dim bucketIdx As Integer = 0
-            Do While bucketIdx < histogram.BucketCount
-                Console.Out().WriteLine(histogram(bucketIdx).ToString())
-                bucketIdx += 1
-            Loop
-            Console.Out().WriteLine()
-
-            Console.Out().WriteLine("= Packet Interval Pictogram =")
-            Console.Out().WriteLine("Width: " & histogram(0).Width)
-            WritePictogramToConsole(histogram)
-            Console.Out().WriteLine()
-
             Dim FilenameInfo As System.IO.FileInfo
             FilenameInfo = My.Computer.FileSystem.GetFileInfo(Filename)
             Dim FileFolderPath As String = FilenameInfo.DirectoryName
@@ -84,7 +45,6 @@ Module StreamMetrics
                 defaultStrm.senderType = readValueFromIni("default", "sender-type", ConfigFilename)
 
                 'Override with any specifics defined in INI
-                Dim strm As ProfessionalMediaStream = New ProfessionalMediaStream()
                 strm.activeHeight = readValueFromIni(FilenameInfo.Name, "active-height", ConfigFilename, defaultStrm.activeHeight)
                 strm.activeWidth = readValueFromIni(FilenameInfo.Name, "active-width", ConfigFilename, defaultStrm.activeWidth)
                 strm.rate = readValueFromIni(FilenameInfo.Name, "rate", ConfigFilename, defaultStrm.rate)
@@ -92,7 +52,47 @@ Module StreamMetrics
                 strm.colorSubsampling = readValueFromIni(FilenameInfo.Name, "color-subsampling", ConfigFilename, defaultStrm.colorSubsampling)
                 strm.sampleWidth = readValueFromIni(FilenameInfo.Name, "sample-width", ConfigFilename, defaultStrm.sampleWidth)
                 strm.senderType = readValueFromIni(FilenameInfo.Name, "sender-type", ConfigFilename, defaultStrm.senderType)
+            End If
 
+            Dim PacketDevice As OfflinePacketDevice = New OfflinePacketDevice(Filename)
+            Dim PacketCommunicator As PacketCommunicator = PacketDevice.Open()
+
+            Using PacketCommunicator
+                PacketCommunicator.ReceivePackets(0, AddressOf DispatchPacket)
+            End Using
+
+            Console.Out().WriteLine("Read " & strm.deltas.Count + 1 & " packets")
+            Console.Out().WriteLine()
+            Console.Out().WriteLine("= Summary Statistics =")
+            Dim meanSdev As Tuple(Of Double, Double) = Statistics.MeanStandardDeviation(strm.deltas)
+
+            Console.Out().WriteLine("Min interval over file (in us)=" & Format(Statistics.Minimum(strm.deltas), "Fixed"))
+            Console.Out().WriteLine("1st percentile (find outliers, in us)=" & Format(Statistics.Percentile(strm.deltas, 1), "Fixed"))
+            Console.Out().WriteLine("5th percentile (set standard, in us)=" & Format(Statistics.Percentile(strm.deltas, 5), "Fixed"))
+            Console.Out().WriteLine("Median (50th percentile, in us)=" & Format(Statistics.Median(strm.deltas), "Fixed"))
+            Console.Out().WriteLine("Average packet interval (in us)=" & Format(meanSdev.Item1, "Fixed"))
+            Console.Out().WriteLine("Packet interval standard dev. (in us)=" & Format(meanSdev.Item2, "Fixed"))
+            Console.Out().WriteLine("95th percentile (set standard, in us)=" & Format(Statistics.Percentile(strm.deltas, 95), "Fixed"))
+            Console.Out().WriteLine("99th percentile (find outliers, in us)=" & Format(Statistics.Percentile(strm.deltas, 99), "Fixed"))
+            Console.Out().WriteLine("Max interval over file (in us)=" & Format(Statistics.Maximum(strm.deltas), "Fixed"))
+            Console.Out().WriteLine()
+
+            Console.Out().WriteLine("= Packet Interval Numerical Histogram =")
+            Dim histogram As Histogram = New Histogram(strm.deltas, 10)
+
+            Dim bucketIdx As Integer = 0
+            Do While bucketIdx < histogram.BucketCount
+                Console.Out().WriteLine(histogram(bucketIdx).ToString())
+                bucketIdx += 1
+            Loop
+            Console.Out().WriteLine()
+
+            Console.Out().WriteLine("= Packet Interval Pictogram =")
+            Console.Out().WriteLine("Width: " & histogram(0).Width)
+            WritePictogramToConsole(histogram)
+            Console.Out().WriteLine()
+
+            If My.Computer.FileSystem.FileExists(ConfigFilename) Then
                 Console.Out().WriteLine("= ST 2110-21 =")
                 Console.Out().WriteLine("Octets to capture the active picture area=" & strm.activeOctets())
                 Console.Out().WriteLine("Number of packets per frame of video, N_pkts=" & strm.NPackets())
@@ -175,11 +175,7 @@ Module StreamMetrics
     End Function
 
     Private Sub DispatchPacket(packet As PcapDotNet.Packets.Packet)
-        If lastTicks > 0 Then
-            ' deltas converted from ticks (0.1 us) to micro-seconds
-            deltas.Add((packet.Timestamp.Ticks - lastTicks) / 10)
-        End If
-        lastTicks = packet.Timestamp.Ticks
+        strm.packetEvent(packet.Timestamp.Ticks)
     End Sub
 
     Class MissingArgumentException
