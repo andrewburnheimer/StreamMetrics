@@ -114,8 +114,7 @@ Module StreamMetrics
                 Console.Out().WriteLine("= StreamMetrics.ini not found, Skipping ST 2110-21 compliance =")
             End If
 
-
-        Catch e As MissingArgumentException
+        Catch e As Exception
             Console.Out().WriteLine(e.Message)
         Finally
             Console.Out().WriteLine("Press Enter to continue...")
