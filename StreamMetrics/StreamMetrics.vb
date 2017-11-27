@@ -1,12 +1,23 @@
 ﻿Imports MathNet.Numerics.Statistics
 Imports PcapDotNet.Core
+Imports System.Text
 
 Module StreamMetrics
     Dim lastTicks As ULong = 0
     Dim deltas As New List(Of Double)
 
-    Sub Main()
+    ' returns the number of characters copied to the buffer, not including the terminating null character.
+    ' If supplied destination buffer is too small to hold the requested string, the string is truncated.
+    ' In the event the initialization file specified by lpFileName is not found, or contains invalid values,
+    ' the Function will set errorno with a value Of '0x2' (File Not Found). To retrieve extended error information, call GetLastError.
+    Private Declare Auto Function GetPrivateProfileString Lib "kernel32" (ByVal lpAppName As String,
+                ByVal lpKeyName As String,
+                ByVal lpDefault As String,
+                ByVal lpReturnedString As StringBuilder,
+                ByVal nSize As Integer,
+                ByVal lpFileName As String) As Integer
 
+    Sub Main()
         Try
             Dim Filename As String = ""
             Dim args = My.Application.CommandLineArgs
@@ -53,6 +64,42 @@ Module StreamMetrics
             Console.Out().WriteLine("= Packet Interval Pictogram =")
             Console.Out().WriteLine("Width: " & histogram(0).Width)
             WritePictogramToConsole(histogram)
+            Console.Out().WriteLine()
+
+            Dim FilenameInfo As System.IO.FileInfo
+            FilenameInfo = My.Computer.FileSystem.GetFileInfo(Filename)
+            Dim FileFolderPath As String = FilenameInfo.DirectoryName
+            Dim ConfigFilename As String = FileFolderPath & "\StreamMetrics.ini"
+
+            If My.Computer.FileSystem.FileExists(ConfigFilename) Then
+                Dim sb As StringBuilder = New StringBuilder(500)
+
+                Dim defaultStrm As ProfessionalMediaStream = New ProfessionalMediaStream()
+                defaultStrm.activeHeight = readValueFromIni("default", "active-height", ConfigFilename)
+                defaultStrm.activeWidth = readValueFromIni("default", "active-width", ConfigFilename)
+                defaultStrm.rate = readValueFromIni("default", "rate", ConfigFilename)
+                defaultStrm.interlaced = readValueFromIni("default", "interlaced", ConfigFilename)
+                defaultStrm.colorSubsampling = readValueFromIni("default", "color-subsampling", ConfigFilename)
+                defaultStrm.sampleWidth = readValueFromIni("default", "sample-width", ConfigFilename)
+
+                'Override with any specifics defined in INI
+                Dim strm As ProfessionalMediaStream = New ProfessionalMediaStream()
+                strm.activeHeight = readValueFromIni(FilenameInfo.Name, "active-height", ConfigFilename, defaultStrm.activeHeight)
+                strm.activeWidth = readValueFromIni(FilenameInfo.Name, "active-width", ConfigFilename, defaultStrm.activeWidth)
+                strm.rate = readValueFromIni(FilenameInfo.Name, "rate", ConfigFilename, defaultStrm.rate)
+                strm.interlaced = readValueFromIni(FilenameInfo.Name, "interlaced", ConfigFilename, defaultStrm.interlaced)
+                strm.colorSubsampling = readValueFromIni(FilenameInfo.Name, "color-subsampling", ConfigFilename, defaultStrm.colorSubsampling)
+                strm.sampleWidth = readValueFromIni(FilenameInfo.Name, "sample-width", ConfigFilename, defaultStrm.sampleWidth)
+
+                Console.Out().WriteLine("= ST 2110-21 Compliance =")
+                Console.Out().WriteLine("Octets to capture the active picture area=" & strm.activeOctets())
+                Console.Out().WriteLine("Number of packets per frame of video, N_pkts=" & strm.NPackets())
+                Console.Out().WriteLine("Period between consecutive frames of video, T_FRAME (in s)=" & Format(strm.TFrame(), "Scientific"))
+
+            Else
+                Console.Out().WriteLine("= StreamMetrics.ini not found, Skipping ST 2110-21 compliance =")
+            End If
+
 
         Catch e As MissingArgumentException
             Console.Out().WriteLine(e.Message)
@@ -62,6 +109,17 @@ Module StreamMetrics
         End Try
 
     End Sub
+
+    Private Function readValueFromIni(header As String, keyValue As String, filename As String, Optional defValue As String = "") As Object
+        Dim sb As StringBuilder = New StringBuilder(500)
+        Dim res As Integer = GetPrivateProfileString(header, keyValue, defValue, sb, sb.Capacity, filename)
+
+        ' Only when net in file and defValue is empty
+        If res = 0 Then
+            Throw New MissingArgumentException(keyValue & " must be defined in [" & header & "] of " & filename)
+        End If
+        Return sb.ToString
+    End Function
 
     Private Sub WritePictogramToConsole(histogram As Histogram, Optional width As Integer = 78)
         Dim bucketIdx As Integer = 0
