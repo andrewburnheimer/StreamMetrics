@@ -11,7 +11,9 @@ Friend Class ProfessionalMediaStream
     Public Property rate As Decimal
     Public Property sampleWidth As Integer
     ' Ratio of active time to total time within the frame period
-    Public Property rActive As Decimal
+    Public Property rActive As Decimal = 1.0
+    Public Property senderType As String = "2110TPW"
+
 
     ' Only handles 8, 10, 12, 16 sampleWidths for 4:2:2 and 4:4:4
     Public Function pGroupOctets() As Integer
@@ -52,5 +54,53 @@ Friend Class ProfessionalMediaStream
             effRate = rate / 2
         End If
         Return effRate ^ -1
+    End Function
+
+    Public Function CMaxSpecLeft() As Double
+        If senderType = "2110TPW" Then
+            Return 16
+        Else
+            Return 4
+        End If
+    End Function
+
+    Public Function CMaxSpecRight() As Double
+        Dim ret As Decimal = 0
+        If senderType = "2110TPN" Then
+            ret = NPackets() / (43200 * rActive * TFrame())
+        ElseIf senderType = "2110TPNL" Then
+            ret = NPackets() / (43200 * TFrame())
+        Else ' 2110TPW
+            ret = NPackets() / (21600 * TFrame())
+        End If
+        Return ret
+    End Function
+
+    Friend Function CMaxSpec() As Integer
+        Return Math.Max(CMaxSpecLeft(), Math.Floor(CMaxSpecRight()))
+    End Function
+
+    Friend Function VrxFullSpecLeft() As Double
+        Dim ret As Decimal = 0
+        If senderType Like "2110TPN*" Then
+            ret = (1500 * 8) / MAX_IP
+        Else ' 2110TPW
+            ret = (1500 * 720) / MAX_IP
+        End If
+        Return ret
+    End Function
+
+    Friend Function VrxFullSpecRight() As Double
+        Dim ret As Decimal = 0
+        If senderType Like "2110TPN*" Then
+            ret = NPackets() / (27000 * TFrame())
+        Else ' 2110TPW
+            ret = NPackets() / (300 * TFrame())
+        End If
+        Return ret
+    End Function
+
+    Friend Function VrxFullSpec() As Integer
+        Return Math.Max(Math.Floor(VrxFullSpecLeft()), Math.Floor(VrxFullSpecRight()))
     End Function
 End Class

@@ -81,6 +81,7 @@ Module StreamMetrics
                 defaultStrm.interlaced = readValueFromIni("default", "interlaced", ConfigFilename)
                 defaultStrm.colorSubsampling = readValueFromIni("default", "color-subsampling", ConfigFilename)
                 defaultStrm.sampleWidth = readValueFromIni("default", "sample-width", ConfigFilename)
+                defaultStrm.senderType = readValueFromIni("default", "sender-type", ConfigFilename)
 
                 'Override with any specifics defined in INI
                 Dim strm As ProfessionalMediaStream = New ProfessionalMediaStream()
@@ -90,12 +91,25 @@ Module StreamMetrics
                 strm.interlaced = readValueFromIni(FilenameInfo.Name, "interlaced", ConfigFilename, defaultStrm.interlaced)
                 strm.colorSubsampling = readValueFromIni(FilenameInfo.Name, "color-subsampling", ConfigFilename, defaultStrm.colorSubsampling)
                 strm.sampleWidth = readValueFromIni(FilenameInfo.Name, "sample-width", ConfigFilename, defaultStrm.sampleWidth)
+                strm.senderType = readValueFromIni(FilenameInfo.Name, "sender-type", ConfigFilename, defaultStrm.senderType)
 
-                Console.Out().WriteLine("= ST 2110-21 Compliance =")
+                Console.Out().WriteLine("= ST 2110-21 =")
                 Console.Out().WriteLine("Octets to capture the active picture area=" & strm.activeOctets())
                 Console.Out().WriteLine("Number of packets per frame of video, N_pkts=" & strm.NPackets())
                 Console.Out().WriteLine("Period between consecutive frames of video, T_FRAME (in s)=" & Format(strm.TFrame(), "Scientific"))
+                Console.Out().WriteLine("Sender Type=" & strm.senderType)
 
+                Console.Out().WriteLine()
+                Console.Out().WriteLine("= Network Compatibility Model Compliance =")
+                Console.Out().WriteLine("C_MAX (left part)=" & Format(strm.CMaxSpecLeft(), "General Number"))
+                Console.Out().WriteLine("C_MAX (right part)=" & Format(strm.CMaxSpecRight(), "Fixed"))
+                Console.Out().WriteLine("C_MAX=" & Format(strm.CMaxSpec(), "General Number"))
+
+                Console.Out().WriteLine()
+                Console.Out().WriteLine("= Virtual Receiver Buffer Model Compliance =")
+                Console.Out().WriteLine("VRX_FULL (left part)=" & Format(strm.VrxFullSpecLeft(), "General Number"))
+                Console.Out().WriteLine("VRX_FULL (right part)=" & Format(strm.VrxFullSpecRight(), "Fixed"))
+                Console.Out().WriteLine("VRX_FULL=" & Format(strm.VrxFullSpec(), "General Number"))
             Else
                 Console.Out().WriteLine("= StreamMetrics.ini not found, Skipping ST 2110-21 compliance =")
             End If
