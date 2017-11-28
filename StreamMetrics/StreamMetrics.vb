@@ -3,6 +3,10 @@ Imports PcapDotNet.Core
 Imports System.Text
 
 Module StreamMetrics
+    Public ReadOnly REV_ID As String = "0.0.1"
+    'Must update the REV_ID by double-clicking on "My Project" in the Solution Explorer, and setting in the Application tab, "Assembly Information..."
+    '...as well as in Publish tab, and in the Installer "Deployment Project Properties"
+
     Dim strm As ProfessionalMediaStream = New ProfessionalMediaStream()
 
     ' returns the number of characters copied to the buffer, not including the terminating null character.
@@ -20,6 +24,8 @@ Module StreamMetrics
         Try
             Dim Filename As String = ""
             Dim args = My.Application.CommandLineArgs
+            Console.Out().WriteLine("= StreamMetrics " & REV_ID & " =")
+            Console.Out().WriteLine()
             If args.Count() > 0 Then
                 Filename = args.Item(args.Count() - 1).ToString
                 Console.Out().WriteLine("Reading: " & Filename)
@@ -101,9 +107,12 @@ Module StreamMetrics
 
                 Console.Out().WriteLine()
                 Console.Out().WriteLine("= Network Compatibility Model Compliance =")
-                Console.Out().WriteLine("C_MAX (left part)=" & Format(strm.CMaxSpecLeft(), "General Number"))
-                Console.Out().WriteLine("C_MAX (right part)=" & Format(strm.CMaxSpecRight(), "Fixed"))
-                Console.Out().WriteLine("C_MAX=" & Format(strm.CMaxSpec(), "General Number"))
+                Console.Out().WriteLine("Scaled period between packets draining, T_DRAIN (in s)=" & Format(strm.TDrain(), "Scientific"))
+                Console.Out().WriteLine("Scaling factor, Beta=" & Format(strm.beta, "Fixed"))
+                Console.Out().WriteLine("Spec. C_MAX (left part)=" & Format(strm.CMaxSpecLeft(), "General Number"))
+                Console.Out().WriteLine("Spec. C_MAX (right part)=" & Format(strm.CMaxSpecRight(), "Fixed"))
+                Console.Out().WriteLine("Spec. C_MAX=" & Format(strm.CMaxSpec(), "General Number"))
+                Console.Out().WriteLine("Obs. C_MAX=" & Format(strm.netCompatBucketMaxDepth, "General Number"))
 
                 Console.Out().WriteLine()
                 Console.Out().WriteLine("= Virtual Receiver Buffer Model Compliance =")

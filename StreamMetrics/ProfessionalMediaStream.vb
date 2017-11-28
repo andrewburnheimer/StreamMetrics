@@ -5,6 +5,8 @@ Friend Class ProfessionalMediaStream
     Private Const MAX_IP As Integer = 1500
     Private lastTicks As ULong = 0
     Public deltas As New List(Of Double)
+    Private netCompatBucket As New Queue(Of Long)
+    Public netCompatBucketMaxDepth As Integer = 0
 
     Public Property activeHeight As Integer
     Public Property activeWidth As Integer
@@ -16,6 +18,7 @@ Friend Class ProfessionalMediaStream
     ' Ratio of active time to total time within the frame period
     Public Property rActive As Decimal = 1.0
     Public Property senderType As String = "2110TPW"
+    Public Property beta As Decimal = 1.1
 
 
     ' Only handles 8, 10, 12, 16 sampleWidths for 4:2:2 and 4:4:4
@@ -57,6 +60,10 @@ Friend Class ProfessionalMediaStream
             effRate = rate / 2
         End If
         Return effRate ^ -1
+    End Function
+
+    Public Function TDrain() As Double
+        Return (TFrame() / NPackets()) / beta
     End Function
 
     Public Function CMaxSpecLeft() As Double
@@ -113,5 +120,18 @@ Friend Class ProfessionalMediaStream
             deltas.Add((ticks - lastTicks) / 10)
         End If
         lastTicks = ticks
+
+        If netCompatBucket.Count > 0 Then
+            Dim bottomOfBucket As Long = netCompatBucket.Peek()
+            If bottomOfBucket < (ticks - TDrain()) Then
+                netCompatBucket.Dequeue()
+            End If
+        End If
+
+        netCompatBucket.Enqueue(ticks)
+        If netCompatBucket.Count > netCompatBucketMaxDepth Then
+            netCompatBucketMaxDepth = netCompatBucket.Count
+        End If
     End Sub
+
 End Class
