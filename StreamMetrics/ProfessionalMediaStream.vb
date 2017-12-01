@@ -1,12 +1,15 @@
 ﻿Imports StreamMetrics
 
 Friend Class ProfessionalMediaStream
-    Private Const RTP_PAYLOAD As Integer = 1428
+    Private Const RTP_PAYLOAD As Integer = 1376 ' per Video-over-IP research. 1428 per ST 2110
     Private Const MAX_IP As Integer = 1500
     Private lastTicks As ULong = 0
     Public deltas As New List(Of Double)
     Private netCompatBucket As New Queue(Of Long)
     Public netCompatBucketMaxDepth As Integer = 0
+    Private virtRecvBuffBucketDepth As Double = 0 ' Must be a float to handle continuous time
+    Public virtRecvBuffBucketMaxDepth As Integer = 0
+    Public virtRecvBuffBucketMinDepth As Integer = 0
 
     Public Property activeHeight As Integer
     Public Property activeWidth As Integer
@@ -62,8 +65,8 @@ Friend Class ProfessionalMediaStream
         Return effRate ^ -1
     End Function
 
-    Public Function TDrain() As Double
-        Return (TFrame() / NPackets()) / beta
+    Public Function TDrain(scaler As Double) As Double
+        Return (TFrame() / NPackets()) / scaler
     End Function
 
     Public Function CMaxSpecLeft() As Double
@@ -115,23 +118,47 @@ Friend Class ProfessionalMediaStream
     End Function
 
     Public Sub packetEvent(ticks As Long)
-        If lastTicks > 0 Then
-            ' deltas converted from ticks (0.1 us) to micro-seconds
-            deltas.Add((ticks - lastTicks) / 10)
-        End If
-        lastTicks = ticks
-
-        If netCompatBucket.Count > 0 Then
-            Dim bottomOfBucket As Long = netCompatBucket.Peek()
-            If bottomOfBucket < (ticks - TDrain()) Then
-                netCompatBucket.Dequeue()
+        Try
+            If lastTicks > 0 Then
+                ' deltas converted from ticks (0.1 us) to micro-seconds
+                deltas.Add((ticks - lastTicks) / 10)
             End If
-        End If
 
-        netCompatBucket.Enqueue(ticks)
-        If netCompatBucket.Count > netCompatBucketMaxDepth Then
-            netCompatBucketMaxDepth = netCompatBucket.Count
-        End If
+            If netCompatBucket.Count > 0 Then
+                Dim bottomOfBucket As Long = netCompatBucket.Peek()
+                Do While bottomOfBucket < (ticks - CInt(TDrain(beta) * 10000000.0))
+                    netCompatBucket.Dequeue()
+                    If netCompatBucket.Count > 0 Then
+                        bottomOfBucket = netCompatBucket.Peek()
+                    Else
+                        Exit Do
+                    End If
+                Loop
+            End If
+
+            netCompatBucket.Enqueue(ticks)
+            If netCompatBucket.Count > netCompatBucketMaxDepth Then
+                netCompatBucketMaxDepth = netCompatBucket.Count
+            End If
+
+            If lastTicks > 0 Then
+                Dim packetsDrained As Double
+                packetsDrained = ((ticks - lastTicks) / 10000000.0) / TDrain(1.0)
+                virtRecvBuffBucketDepth -= packetsDrained
+
+                virtRecvBuffBucketDepth += 1.0
+                If virtRecvBuffBucketDepth < virtRecvBuffBucketMinDepth Then
+                    virtRecvBuffBucketMinDepth = Math.Floor(virtRecvBuffBucketDepth)
+                End If
+                If virtRecvBuffBucketDepth > virtRecvBuffBucketMaxDepth Then
+                    virtRecvBuffBucketMaxDepth = Math.Ceiling(virtRecvBuffBucketDepth)
+                End If
+            End If
+
+            lastTicks = ticks
+        Catch e As Exception
+            Console.Out().WriteLine(e.Message)
+        End Try
     End Sub
 
 End Class

@@ -3,7 +3,7 @@ Imports PcapDotNet.Core
 Imports System.Text
 
 Module StreamMetrics
-    Public ReadOnly REV_ID As String = "0.0.1"
+    Public ReadOnly REV_ID As String = "1.0.0"
     'Must update the REV_ID by double-clicking on "My Project" in the Solution Explorer, and setting in the Application tab, "Assembly Information..."
     '...as well as in Publish tab, and in the Installer "Deployment Project Properties"
 
@@ -107,7 +107,7 @@ Module StreamMetrics
 
                 Console.Out().WriteLine()
                 Console.Out().WriteLine("= Network Compatibility Model Compliance =")
-                Console.Out().WriteLine("Scaled period between packets draining, T_DRAIN (in s)=" & Format(strm.TDrain(), "Scientific"))
+                Console.Out().WriteLine("Scaled period between packets draining, T_DRAIN (in s)=" & Format(strm.TDrain(strm.beta), "Scientific"))
                 Console.Out().WriteLine("Scaling factor, Beta=" & Format(strm.beta, "Fixed"))
                 Console.Out().WriteLine("Spec. C_MAX (left part)=" & Format(strm.CMaxSpecLeft(), "General Number"))
                 Console.Out().WriteLine("Spec. C_MAX (right part)=" & Format(strm.CMaxSpecRight(), "Fixed"))
@@ -116,9 +116,18 @@ Module StreamMetrics
 
                 Console.Out().WriteLine()
                 Console.Out().WriteLine("= Virtual Receiver Buffer Model Compliance =")
-                Console.Out().WriteLine("VRX_FULL (left part)=" & Format(strm.VrxFullSpecLeft(), "General Number"))
-                Console.Out().WriteLine("VRX_FULL (right part)=" & Format(strm.VrxFullSpecRight(), "Fixed"))
-                Console.Out().WriteLine("VRX_FULL=" & Format(strm.VrxFullSpec(), "General Number"))
+                Console.Out().WriteLine("Scaled period between packets draining, T_DRAIN (in s)=" & Format(strm.TDrain(1.0), "Scientific"))
+                Console.Out().WriteLine("Spec. VRX_FULL (left part)=" & Format(strm.VrxFullSpecLeft(), "General Number"))
+                Console.Out().WriteLine("Spec. VRX_FULL (right part)=" & Format(strm.VrxFullSpecRight(), "Fixed"))
+                Console.Out().WriteLine("Spec. VRX_FULL=" & Format(strm.VrxFullSpec(), "General Number"))
+
+                Console.Out().WriteLine("Obs. Min VRX_FULL=" & Format(strm.virtRecvBuffBucketMinDepth, "General Number"))
+                Console.Out().WriteLine("Obs. Max VRX_FULL=" & Format(strm.virtRecvBuffBucketMaxDepth, "General Number"))
+                Console.Out().WriteLine("Obs. Range VRX_FULL=" & Format(strm.virtRecvBuffBucketMaxDepth - strm.virtRecvBuffBucketMinDepth, "General Number"))
+                Console.Out().WriteLine()
+
+                Console.Out().WriteLine("Receiver must start rendering with " & -1 * strm.virtRecvBuffBucketMinDepth & " packets to prevent underflow.")
+                Console.Out().WriteLine("Receiver buffer must be " & strm.virtRecvBuffBucketMaxDepth - strm.virtRecvBuffBucketMinDepth & " packets deep to prevent overflow.")
             Else
                 Console.Out().WriteLine("= StreamMetrics.ini not found, Skipping ST 2110-21 compliance =")
             End If
