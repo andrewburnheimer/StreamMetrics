@@ -3,7 +3,7 @@ Imports PcapDotNet.Core
 Imports System.Text
 
 Module StreamMetrics
-    Public ReadOnly REV_ID As String = "1.0.0"
+    Public ReadOnly REV_ID As String = "1.1.0"
     'Must update the REV_ID by double-clicking on "My Project" in the Solution Explorer, and setting in the Application tab, "Assembly Information..."
     '...as well as in Publish tab, and in the Installer "Deployment Project Properties"
 
@@ -116,7 +116,7 @@ Module StreamMetrics
 
                 Console.Out().WriteLine()
                 Console.Out().WriteLine("= Virtual Receiver Buffer Model Compliance =")
-                Console.Out().WriteLine("Scaled period between packets draining, T_DRAIN (in s)=" & Format(strm.TDrain(1.0), "Scientific"))
+                Console.Out().WriteLine("Unscaled period between packets draining, T_DRAIN (in s)=" & Format(strm.TDrain(1.0), "Scientific"))
                 Console.Out().WriteLine("Spec. VRX_FULL (left part)=" & Format(strm.VrxFullSpecLeft(), "General Number"))
                 Console.Out().WriteLine("Spec. VRX_FULL (right part)=" & Format(strm.VrxFullSpecRight(), "Fixed"))
                 Console.Out().WriteLine("Spec. VRX_FULL=" & Format(strm.VrxFullSpec(), "General Number"))
