@@ -1,8 +1,8 @@
 ﻿Imports StreamMetrics
 
 Friend Class ProfessionalMediaStream
-    Private Const RTP_PAYLOAD As Integer = 1428 ' per ST 2110
     Private Const MAX_IP As Integer = 1500
+    Friend rtpPayload As Integer = 1428 ' per ST 2110
     Private lastTicks As ULong = 0
     Public deltas As New List(Of Double)
     Private netCompatBucket As New Queue(Of Long)
@@ -53,7 +53,7 @@ Friend Class ProfessionalMediaStream
 
     ' Number of packets per frame of video (depends on mapping details)
     Public Function NPackets() As Integer
-        Return Math.Ceiling(CDbl(activeOctets()) / RTP_PAYLOAD)
+        Return Math.Ceiling(CDbl(activeOctets()) / rtpPayload)
     End Function
 
     ' Period between consecutive frames of video at the prevailing frame rate

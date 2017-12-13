@@ -3,16 +3,17 @@ Imports PcapDotNet.Core
 Imports System.Text
 
 Module StreamMetrics
-    Public ReadOnly REV_ID As String = "1.1.0"
-    'Must update the REV_ID by double-clicking on "My Project" in the Solution Explorer, and setting in the Application tab, "Assembly Information..."
-    '...as well as in Publish tab, and in the Installer "Deployment Project Properties"
+    Public ReadOnly REV_ID As String = "1.1.1"
+    ' Must update the REV_ID by double-clicking on "My Project" in the Solution Explorer, and setting in the
+    ' Application tab, "Assembly Information...", as well in the Installer "Deployment Project Properties"
 
-    Dim strm As ProfessionalMediaStream = New ProfessionalMediaStream()
+    Dim strm As ProfessionalMediaStream
 
     ' returns the number of characters copied to the buffer, not including the terminating null character.
     ' If supplied destination buffer is too small to hold the requested string, the string is truncated.
     ' In the event the initialization file specified by lpFileName is not found, or contains invalid values,
-    ' the Function will set errorno with a value Of '0x2' (File Not Found). To retrieve extended error information, call GetLastError.
+    ' the Function will set errorno with a value Of '0x2' (File Not Found). To retrieve extended error 
+    ' information, call GetLastError.
     Private Declare Auto Function GetPrivateProfileString Lib "kernel32" (ByVal lpAppName As String,
                 ByVal lpKeyName As String,
                 ByVal lpDefault As String,
@@ -40,17 +41,25 @@ Module StreamMetrics
 
             If My.Computer.FileSystem.FileExists(ConfigFilename) Then
                 Dim sb As StringBuilder = New StringBuilder(500)
-
                 Dim defaultStrm As ProfessionalMediaStream = New ProfessionalMediaStream()
+
+                Dim res As Integer = GetPrivateProfileString("default", "rtp-payload", "", sb, sb.Capacity, ConfigFilename)
+                If Not res = 0 Then
+                    defaultStrm.rtpPayload = readValueFromIni("default", "rtp-payload", ConfigFilename)
+                End If
+
                 defaultStrm.activeHeight = readValueFromIni("default", "active-height", ConfigFilename)
                 defaultStrm.activeWidth = readValueFromIni("default", "active-width", ConfigFilename)
                 defaultStrm.rate = readValueFromIni("default", "rate", ConfigFilename)
+
                 defaultStrm.interlaced = readValueFromIni("default", "interlaced", ConfigFilename)
                 defaultStrm.colorSubsampling = readValueFromIni("default", "color-subsampling", ConfigFilename)
                 defaultStrm.sampleWidth = readValueFromIni("default", "sample-width", ConfigFilename)
                 defaultStrm.senderType = readValueFromIni("default", "sender-type", ConfigFilename)
 
                 'Override with any specifics defined in INI
+                strm = New ProfessionalMediaStream()
+                strm.rtpPayload = readValueFromIni(FilenameInfo.Name, "rtp-payload", ConfigFilename, defaultStrm.rtpPayload)
                 strm.activeHeight = readValueFromIni(FilenameInfo.Name, "active-height", ConfigFilename, defaultStrm.activeHeight)
                 strm.activeWidth = readValueFromIni(FilenameInfo.Name, "active-width", ConfigFilename, defaultStrm.activeWidth)
                 strm.rate = readValueFromIni(FilenameInfo.Name, "rate", ConfigFilename, defaultStrm.rate)
@@ -83,17 +92,12 @@ Module StreamMetrics
             Console.Out().WriteLine("Max interval over file (in us)=" & Format(Statistics.Maximum(strm.deltas), "Fixed"))
             Console.Out().WriteLine()
 
-            Console.Out().WriteLine("= Packet Interval Numerical Histogram =")
+            Console.Out().WriteLine("= Packet Interval Numerical Histogram (in us) =")
             Dim histogram As Histogram = New Histogram(strm.deltas, 10)
-
-            Dim bucketIdx As Integer = 0
-            Do While bucketIdx < histogram.BucketCount
-                Console.Out().WriteLine(histogram(bucketIdx).ToString())
-                bucketIdx += 1
-            Loop
+            WriteHistogramToConsole(histogram)
             Console.Out().WriteLine()
 
-            Console.Out().WriteLine("= Packet Interval Pictogram =")
+            Console.Out().WriteLine("= Packet Interval Pictogram (in us)=")
             Console.Out().WriteLine("Width: " & histogram(0).Width)
             WritePictogramToConsole(histogram)
             Console.Out().WriteLine()
@@ -113,6 +117,11 @@ Module StreamMetrics
                 Console.Out().WriteLine("Spec. C_MAX (right part)=" & Format(strm.CMaxSpecRight(), "Fixed"))
                 Console.Out().WriteLine("Spec. C_MAX=" & Format(strm.CMaxSpec(), "General Number"))
                 Console.Out().WriteLine("Obs. C_MAX=" & Format(strm.netCompatBucketMaxDepth, "General Number"))
+                Console.Out().Write("Stream does")
+                If strm.netCompatBucketMaxDepth > strm.CMaxSpecLeft() And strm.netCompatBucketMaxDepth > strm.CMaxSpecRight() Then
+                    Console.Out().Write(" NOT")
+                End If
+                Console.Out().Write(" comply with the Network Compatibility Model of ST 2110-21" & vbCrLf)
 
                 Console.Out().WriteLine()
                 Console.Out().WriteLine("= Virtual Receiver Buffer Model Compliance =")
@@ -123,11 +132,16 @@ Module StreamMetrics
 
                 Console.Out().WriteLine("Obs. Min VRX_FULL=" & Format(strm.virtRecvBuffBucketMinDepth, "General Number"))
                 Console.Out().WriteLine("Obs. Max VRX_FULL=" & Format(strm.virtRecvBuffBucketMaxDepth, "General Number"))
-                Console.Out().WriteLine("Obs. Range VRX_FULL=" & Format(strm.virtRecvBuffBucketMaxDepth - strm.virtRecvBuffBucketMinDepth, "General Number"))
+                Dim virtRecvBufferBucketRange As Integer = strm.virtRecvBuffBucketMaxDepth - strm.virtRecvBuffBucketMinDepth
+                Console.Out().WriteLine("Obs. Range VRX_FULL=" & Format(virtRecvBufferBucketRange, "General Number"))
+                Console.Out().Write("Stream does")
+                If virtRecvBufferBucketRange > strm.VrxFullSpecLeft() And virtRecvBufferBucketRange > strm.VrxFullSpecRight() Then
+                    Console.Out().Write(" NOT")
+                End If
+                Console.Out().Write(" comply with the Virtual Receive Buffer Model of ST 2110-21" & vbCrLf)
                 Console.Out().WriteLine()
 
-                Console.Out().WriteLine("Receiver must start rendering with " & -1 * strm.virtRecvBuffBucketMinDepth & " packets to prevent underflow.")
-                Console.Out().WriteLine("Receiver buffer must be " & strm.virtRecvBuffBucketMaxDepth - strm.virtRecvBuffBucketMinDepth & " packets deep to prevent overflow.")
+                Console.Out().WriteLine("Receiver to start rendering after receiving " & Format(strm.virtRecvBuffBucketMaxDepth - strm.virtRecvBuffBucketMinDepth, "General Number") & " packets.")
             Else
                 Console.Out().WriteLine("= StreamMetrics.ini not found, Skipping ST 2110-21 compliance =")
             End If
@@ -164,7 +178,7 @@ Module StreamMetrics
 
         bucketIdx = 0
         Do While bucketIdx < histogram.BucketCount
-            Dim axis As String = "(" & histogram(bucketIdx).LowerBound & ";" & histogram(bucketIdx).UpperBound & "]"
+            Dim axis As String = "(" & Format(histogram(bucketIdx).LowerBound, "Fixed") & ";" & Format(histogram(bucketIdx).UpperBound, "Fixed") & "]"
             axis = PadString(axis, (width / 4) - 1)
             Console.Out().Write(axis & ":")
             Dim bar As String = WriteBar(histogram(bucketIdx).Count, bucketMaxCount, width - (width / 4))
@@ -174,6 +188,14 @@ Module StreamMetrics
         Loop
     End Sub
 
+    Private Sub WriteHistogramToConsole(histogram As Histogram)
+        Dim bucketIdx As Integer = 0
+        Do While bucketIdx < histogram.BucketCount
+            Dim axis As String = "(" & Format(histogram(bucketIdx).LowerBound, "Fixed") & ";" & Format(histogram(bucketIdx).UpperBound, "Fixed") & "]"
+            Console.Out().WriteLine(axis & "=" & histogram(bucketIdx).Count)
+            bucketIdx += 1
+        Loop
+    End Sub
     Private Function WriteBar(value As Integer, maxValue As Integer, maxLength As Integer) As String
         Dim hashes As String = ""
         hashes = PadString(hashes, (value / CDbl(maxValue)) * maxLength, "#")
