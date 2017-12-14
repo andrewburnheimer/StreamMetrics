@@ -5,7 +5,7 @@ Friend Class ProfessionalMediaStream
     Friend rtpPayload As Integer = 1428 ' per ST 2110
     Private lastTicks As ULong = 0
     Public deltas As New List(Of Double)
-    Private netCompatBucket As New Queue(Of Long)
+    Private netCompatBucketDepth As Double = 0 ' Must be a float to handle continuous time
     Public netCompatBucketMaxDepth As Integer = 0
     Private virtRecvBuffBucketDepth As Double = 0 ' Must be a float to handle continuous time
     Public virtRecvBuffBucketMaxDepth As Integer = 0
@@ -125,27 +125,24 @@ Friend Class ProfessionalMediaStream
             End If
 
             If (Not rate = Nothing) And (Not activeHeight = Nothing) And (Not activeWidth = Nothing) And (Not colorSubsampling = Nothing) And (Not interlaced = Nothing) And (Not sampleWidth = Nothing) Then
-                If netCompatBucket.Count > 0 Then
-                    Dim bottomOfBucket As Long = netCompatBucket.Peek()
-                    Do While bottomOfBucket < (ticks - CInt(TDrain(beta) * 10000000.0))
-                        netCompatBucket.Dequeue()
-                        If netCompatBucket.Count > 0 Then
-                            bottomOfBucket = netCompatBucket.Peek()
-                        Else
-                            Exit Do
-                        End If
-                    Loop
-                End If
-
-                netCompatBucket.Enqueue(ticks)
-                If netCompatBucket.Count > netCompatBucketMaxDepth Then
-                    netCompatBucketMaxDepth = netCompatBucket.Count
-                End If
 
                 If lastTicks > 0 Then
-                    Dim packetsDrained As Double
-                    packetsDrained = ((ticks - lastTicks) / 10000000.0) / TDrain(1.0)
-                    virtRecvBuffBucketDepth -= packetsDrained
+                    Dim netCompatPacketsDrained As Double
+                    netCompatPacketsDrained = ((ticks - lastTicks) / 10000000.0) / TDrain(beta)
+                    netCompatBucketDepth -= netCompatPacketsDrained
+                    If netCompatBucketDepth < 0 Then
+                        netCompatBucketDepth = 0
+                    End If
+
+                    netCompatBucketDepth += 1.0
+
+                    If netCompatBucketDepth > netCompatBucketMaxDepth Then
+                        netCompatBucketMaxDepth = Math.Ceiling(netCompatBucketDepth)
+                    End If
+
+                    Dim virtRecvBuffPacketsDrained As Double
+                    virtRecvBuffPacketsDrained = ((ticks - lastTicks) / 10000000.0) / TDrain(1.0)
+                    virtRecvBuffBucketDepth -= virtRecvBuffPacketsDrained
 
                     virtRecvBuffBucketDepth += 1.0
                     If virtRecvBuffBucketDepth < virtRecvBuffBucketMinDepth Then

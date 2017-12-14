@@ -3,7 +3,7 @@ Imports PcapDotNet.Core
 Imports System.Text
 
 Module StreamMetrics
-    Public ReadOnly REV_ID As String = "1.1.1"
+    Public ReadOnly REV_ID As String = "1.2.0"
     ' Must update the REV_ID by double-clicking on "My Project" in the Solution Explorer, and setting in the
     ' Application tab, "Assembly Information...", as well in the Installer "Deployment Project Properties"
 
@@ -116,7 +116,8 @@ Module StreamMetrics
                 Console.Out().WriteLine("Spec. C_MAX (left part)=" & Format(strm.CMaxSpecLeft(), "General Number"))
                 Console.Out().WriteLine("Spec. C_MAX (right part)=" & Format(strm.CMaxSpecRight(), "Fixed"))
                 Console.Out().WriteLine("Spec. C_MAX=" & Format(strm.CMaxSpec(), "General Number"))
-                Console.Out().WriteLine("Obs. C_MAX=" & Format(strm.netCompatBucketMaxDepth, "General Number"))
+                Console.Out().WriteLine("Obs. Max C_MAX=" & Format(strm.netCompatBucketMaxDepth, "General Number"))
+
                 Console.Out().Write("Stream does")
                 If strm.netCompatBucketMaxDepth > strm.CMaxSpecLeft() And strm.netCompatBucketMaxDepth > strm.CMaxSpecRight() Then
                     Console.Out().Write(" NOT")
