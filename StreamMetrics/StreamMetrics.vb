@@ -116,7 +116,7 @@ Module StreamMetrics
                 Console.Out().WriteLine("Spec. C_MAX (left part)=" & Format(strm.CMaxSpecLeft(), "General Number"))
                 Console.Out().WriteLine("Spec. C_MAX (right part)=" & Format(strm.CMaxSpecRight(), "Fixed"))
                 Console.Out().WriteLine("Spec. C_MAX=" & Format(strm.CMaxSpec(), "General Number"))
-                Console.Out().WriteLine("Obs. Max C_MAX=" & Format(strm.netCompatBucketMaxDepth, "General Number"))
+                Console.Out().WriteLine("Obs. C_MAX=" & Format(strm.netCompatBucketMaxDepth, "General Number"))
 
                 Console.Out().Write("Stream does")
                 If strm.netCompatBucketMaxDepth > strm.CMaxSpecLeft() And strm.netCompatBucketMaxDepth > strm.CMaxSpecRight() Then

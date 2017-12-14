@@ -23,6 +23,9 @@ Meta-data about the stream should be configured in a file named
 `StreamMetrics.ini` in the same sub-directory as the input `.pcap` file. See
 `Example-StreamMetrics.ini` for details.
 
+Due to the dependency on PcapDotNet, input `.pcap` files must be typical.
+Nanosecond resolution timestamps are not supported.
+
 
 ### Example Results
 
@@ -82,6 +85,7 @@ Spec. C_MAX (left part)=16
 Spec. C_MAX (right part)=5.04
 Spec. C_MAX=16
 Obs. C_MAX=3
+Stream does comply with the Network Compatibility Model of ST 2110-21
 
 = Virtual Receiver Buffer Model Compliance =
 Unscaled period between packets draining, T_DRAIN (in s)=9.19E-06
@@ -91,9 +95,9 @@ Spec. VRX_FULL=720
 Obs. Min VRX_FULL=-1
 Obs. Max VRX_FULL=280
 Obs. Range VRX_FULL=281
+Stream does comply with the Virtual Receive Buffer Model of ST 2110-21
 
-Receiver must start rendering with 1 packets to prevent underflow.
-Receiver buffer must be 280 packets deep to prevent overflow.
+Receiver to start rendering after receiving 281 packets.
 ```
 
 ## Contribute
