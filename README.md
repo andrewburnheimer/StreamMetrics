@@ -15,13 +15,30 @@ royalties.
 * .NET Framework 4.6.1
 
 
+## Installation
+
+1. Retrieve the installer, contact the author for details.
+
+2. Install the package by double-clicking the installer.
+
+3. After it has completed, open the `C:\Program Files\NBCUniversal\StreamMetrics\`
+folder.
+
+4. Right-click the `StreamMetrics.exe` and select *Send to Desktop (create shortcut)*
+
+![post_install_shortcut](/post_install_shortcut.jpg?raw=true "Create shortcut on Desktop")
+
+
 ## Usage
+
+* Run the application on the sample file by dragging the sample file onto the
+shortcut.
 
 ![drag_drop_pcap_file](/drag_drop_pcap_file.jpg?raw=true "Drag and Drop .pcap file")
 
 Meta-data about the stream should be configured in a file named
-`StreamMetrics.ini` in the same sub-directory as the input `.pcap` file. See
-`Example-StreamMetrics.ini` for details.
+`StreamMetrics.ini` in the same sub-directory as the input sample `.pcap` file.
+See `Example-StreamMetrics.ini` for details.
 
 Due to the dependency on PcapDotNet, input `.pcap` files must be typical.
 Nanosecond resolution timestamps are not supported.

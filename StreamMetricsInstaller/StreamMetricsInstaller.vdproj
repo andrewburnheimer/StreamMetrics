@@ -22,13 +22,13 @@
         "Entry"
         {
         "MsmKey" = "8:_2D4E924D13ED06996F3CEA9522C6FFAD"
-        "OwnerKey" = "8:_DADB932C1DF6447A8E665C52ACA1B3DD"
+        "OwnerKey" = "8:_9C3FFFCEC8CFE84EA2A20A3B7C626FAE"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_2D4E924D13ED06996F3CEA9522C6FFAD"
-        "OwnerKey" = "8:_9C3FFFCEC8CFE84EA2A20A3B7C626FAE"
+        "OwnerKey" = "8:_DADB932C1DF6447A8E665C52ACA1B3DD"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -40,7 +40,7 @@
         "Entry"
         {
         "MsmKey" = "8:_7220B5EA4607C980CD6B598BF1C8A00A"
-        "OwnerKey" = "8:_9C3FFFCEC8CFE84EA2A20A3B7C626FAE"
+        "OwnerKey" = "8:_E351C0678F823C8E964FE3AFB6A10E22"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -52,7 +52,7 @@
         "Entry"
         {
         "MsmKey" = "8:_7220B5EA4607C980CD6B598BF1C8A00A"
-        "OwnerKey" = "8:_E351C0678F823C8E964FE3AFB6A10E22"
+        "OwnerKey" = "8:_9C3FFFCEC8CFE84EA2A20A3B7C626FAE"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -100,25 +100,7 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_DADB932C1DF6447A8E665C52ACA1B3DD"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_9C3FFFCEC8CFE84EA2A20A3B7C626FAE"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_E351C0678F823C8E964FE3AFB6A10E22"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_2D4E924D13ED06996F3CEA9522C6FFAD"
+        "OwnerKey" = "8:_E1076F42570B98FA689C6EB30674097F"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -130,7 +112,25 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_E1076F42570B98FA689C6EB30674097F"
+        "OwnerKey" = "8:_2D4E924D13ED06996F3CEA9522C6FFAD"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_E351C0678F823C8E964FE3AFB6A10E22"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_9C3FFFCEC8CFE84EA2A20A3B7C626FAE"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_DADB932C1DF6447A8E665C52ACA1B3DD"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -151,6 +151,14 @@
         "PrivateKeyFile" = "8:"
         "TimeStampServer" = "8:"
         "InstallerBootstrapper" = "3:2"
+            "BootstrapperCfg:{63ACBE69-63AA-4F98-B2B6-99F9E24495F2}"
+            {
+            "Enabled" = "11:TRUE"
+            "PromptEnabled" = "11:TRUE"
+            "PrerequisitesLocation" = "2:1"
+            "Url" = "8:"
+            "ComponentsUrl" = "8:"
+            }
         }
         "Release"
         {
@@ -167,6 +175,14 @@
         "PrivateKeyFile" = "8:"
         "TimeStampServer" = "8:"
         "InstallerBootstrapper" = "3:2"
+            "BootstrapperCfg:{63ACBE69-63AA-4F98-B2B6-99F9E24495F2}"
+            {
+            "Enabled" = "11:TRUE"
+            "PromptEnabled" = "11:TRUE"
+            "PrerequisitesLocation" = "2:1"
+            "Url" = "8:"
+            "ComponentsUrl" = "8:"
+            }
         }
     }
     "Deployable"
@@ -203,11 +219,6 @@
             "AssemblyAsmDisplayName" = "8:PcapDotNet.Packets, Version=1.0.4.25028, Culture=neutral, PublicKeyToken=06a20bc2fabb1931, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_2D4E924D13ED06996F3CEA9522C6FFAD"
-                    {
-                    "Name" = "8:PcapDotNet.Packets.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:PcapDotNet.Packets.dll"
             "TargetName" = "8:"
@@ -234,11 +245,6 @@
             "AssemblyAsmDisplayName" = "8:PcapDotNet.Base, Version=1.0.4.25027, Culture=neutral, PublicKeyToken=06a20bc2fabb1931, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_7220B5EA4607C980CD6B598BF1C8A00A"
-                    {
-                    "Name" = "8:PcapDotNet.Base.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:PcapDotNet.Base.dll"
             "TargetName" = "8:"
@@ -265,11 +271,6 @@
             "AssemblyAsmDisplayName" = "8:PcapDotNet.Core.Extensions, Version=1.0.4.25151, Culture=neutral, PublicKeyToken=06a20bc2fabb1931, processorArchitecture=AMD64"
                 "ScatterAssemblies"
                 {
-                    "_9C3FFFCEC8CFE84EA2A20A3B7C626FAE"
-                    {
-                    "Name" = "8:PcapDotNet.Core.Extensions.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:PcapDotNet.Core.Extensions.dll"
             "TargetName" = "8:"
@@ -296,11 +297,6 @@
             "AssemblyAsmDisplayName" = "8:System.Net.Http, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"
                 "ScatterAssemblies"
                 {
-                    "_DCE9272EF4B0DA469FD3F29A35B85C19"
-                    {
-                    "Name" = "8:System.Net.Http.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:System.Net.Http.dll"
             "TargetName" = "8:"
@@ -327,11 +323,6 @@
             "AssemblyAsmDisplayName" = "8:MathNet.Numerics, Version=3.20.0.0, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_E1076F42570B98FA689C6EB30674097F"
-                    {
-                    "Name" = "8:MathNet.Numerics.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:MathNet.Numerics.dll"
             "TargetName" = "8:"
@@ -358,11 +349,6 @@
             "AssemblyAsmDisplayName" = "8:PcapDotNet.Core, Version=1.0.4.25149, Culture=neutral, PublicKeyToken=06a20bc2fabb1931, processorArchitecture=AMD64"
                 "ScatterAssemblies"
                 {
-                    "_E351C0678F823C8E964FE3AFB6A10E22"
-                    {
-                    "Name" = "8:PcapDotNet.Core.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:PcapDotNet.Core.dll"
             "TargetName" = "8:"
@@ -559,20 +545,6 @@
         }
         "Shortcut"
         {
-            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_B1EE808360AF4EF4803736D5B50E2317"
-            {
-            "Name" = "8:StreamMetrics"
-            "Arguments" = "8:"
-            "Description" = "8:"
-            "ShowCmd" = "3:1"
-            "IconIndex" = "3:0"
-            "Transitive" = "11:FALSE"
-            "Target" = "8:_DADB932C1DF6447A8E665C52ACA1B3DD"
-            "Folder" = "8:_F6F2B95FD96E44DAB05C80EC04B0EF66"
-            "WorkingFolder" = "8:_5437486421384878916353453323CA2C"
-            "Icon" = "8:"
-            "Feature" = "8:"
-            }
         }
         "UserInterface"
         {
