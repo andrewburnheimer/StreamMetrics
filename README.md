@@ -43,6 +43,9 @@ See `Example-StreamMetrics.ini` for details.
 Due to the dependency on PcapDotNet, input `.pcap` files must be typical.
 Nanosecond resolution timestamps are not supported.
 
+![wireshark_file_type](/wireshark_file_type.jpg?raw=true "Input .pcap files must be typical")
+
+
 
 ### Example Results
 
