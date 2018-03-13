@@ -1,6 +1,7 @@
 # StreamMetrics
-CLI program to derive SMPTE ST 2110 metrics from input .pcap files
 
+CLI program to derive SMPTE ST 2110 metrics from input .pcap files. A
+python implementation is available at https://github.com/dnguyen219/stream-metrics .
 
 ## License
 
@@ -44,7 +45,10 @@ Due to the dependency on PcapDotNet, input `.pcap` files must be typical.
 Nanosecond resolution timestamps are not supported.
 
 ![wireshark_file_type](/wireshark_file_type.jpg?raw=true "Input .pcap files must be typical")
-
+ 
+The version of StreamMetrics implemented in python *does* support the
+processing of nanosecond .pcap files, and is available at
+https://github.com/dnguyen219/stream-metrics .
 
 
 ### Example Results
